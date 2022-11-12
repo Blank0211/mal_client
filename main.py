@@ -2,6 +2,7 @@ import sys, json, secrets, pprint
 import requests
 CLIENT_ID = "d2b59caf73a52c2d8c6a5be3e7bd9733"
 
+
 # --- Authorization (OAuth2) ---
 # Step 1
 def get_code_verifier():
@@ -103,7 +104,6 @@ def load_token(username):
 
     return return_val
 
-
 def help_msg():
     msg = """
         Commands        Discription
@@ -113,17 +113,7 @@ def help_msg():
           ld tkn        Load user's token from data file 
            p tkn        Print user's tokens
     """
-
     print(msg)
-
-
-
-
-
-
-
-
-
 
 
 # --- Main ---
