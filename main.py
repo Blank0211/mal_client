@@ -1,8 +1,6 @@
 import sys, json, secrets, pprint
 import requests
-
 CLIENT_ID = "d2b59caf73a52c2d8c6a5be3e7bd9733"
-
 
 # --- Authorization (OAuth2) ---
 # Step 1
@@ -106,6 +104,26 @@ def load_token(username):
     return return_val
 
 
+def help_msg():
+    msg = """
+        Commands        Discription
+
+               q        Quit application
+            auth        Authorize application
+          ld tkn        Load user's token from data file 
+           p tkn        Print user's tokens
+    """
+
+    print(msg)
+
+
+
+
+
+
+
+
+
 
 
 # --- Main ---
@@ -118,12 +136,14 @@ def main():
         command = input('--> ')
         if command == 'q':
             break
-        elif command == 'ld tok':
-            user_token = load_token(username)
-        elif command == 'p tok':
-            pprint.pprint(user_token)
+        elif command == '-help':
+            help_msg()
         elif command == 'auth':
             main_auth(username)
+        elif command == 'ld tkn':
+            user_token = load_token(username)
+        elif command == 'p tkn':
+            pprint.pprint(user_token)
         else:
             print("Command not recognized!")
 
