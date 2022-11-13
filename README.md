@@ -10,3 +10,6 @@ that you want returned with the `fields` parameter. To pass a fields parameter
 to a command, prepend it with dash. ex: `gt inf -anime_statistics`.  
 Different endpoints have different valid values for the `fields` parameter.  
 Check out the [official docs](https://myanimelist.net/apiconfig/references/api/v2) for more information.
+
+
+P.S. I hate github's markdown formatting.
