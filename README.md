@@ -5,13 +5,8 @@ A barebone python CLI application to work with MAL's API.
 Run the script from command line, enter "-help" to get the list of 
 commands and their discription
 
-By default MAL API doesn't return all fields. You can choose the fields that you 
-want returned with the `fields` parameter. To pass a fields parameter 
+By default MAL API doesn't return all fields. You can choose the fields  
+that you want returned with the `fields` parameter. To pass a fields parameter 
 to a command, prepend it with dash. ex: `gt inf -anime_statistics`.  
-Different endpoints have different valid values for the `fields` parameter,  
-check out the [official docs](https://myanimelist.net/apiconfig/references/api/v2) for more information.
-
-
-
-
-
+Different endpoints have different valid values for the `fields` parameter.  
+Check out the [official docs](https://myanimelist.net/apiconfig/references/api/v2) for more information.
