@@ -81,7 +81,27 @@ def refresh_token():
     pass
 
 
-# --- Commands ---
+# --- API Endpoints ---
+# NOTE: You have to call load_token() before
+#       calling any function in this section.
+def user_info(access_token):
+    endpoint = 'https://api.myanimelist.net/v2/users/@me'
+    headers = {'Authorization': f'Bearer {access_token}'}
+    res = requests.get(endpoint, headers=headers, timeout=2)
+    
+    print(res, res.text, res.json(), sep='\n')
+
+def anime_stats(access_token):
+    endpoint = 'https://api.myanimelist.net/v2/users/@me'
+    headers = {'Authorization': f'Bearer {access_token}'}
+    params = {'fields': 'anime_statistics'}
+    res = requests.get(endpoint, params=params, headers=headers, timeout=2)
+
+    print(res, res.text, sep='n')
+    pprint(res.json())
+
+
+# --- Local Commands ---
 def load_token(username):
     """Returns user's tokens if found.
     Returns "not_found" if user is not registered,
@@ -115,24 +135,11 @@ def help_msg():
             auth        Authorize application
           ld tkn        Load user's token from data file 
            p tkn        Print user's tokens
+
+          gt inf        Get user info
+         gt stat        Get user's anime stats
     """
     print(msg)
-
-def user_info(access_token):
-    url = 'https://api.myanimelist.net/v2/users/@me'
-    headers = {'Authorization': f'Bearer {access_token}'}
-    res = requests.get(url, headers=headers)
-    
-    print(res, res.text, res.json(), sep='\n')
-
-def anime_stats(access_token):
-    url = 'https://api.myanimelist.net/v2/users/@me'
-    headers = {'Authorization': f'Bearer {access_token}'}
-    params = {'fields': 'anime_statistics'}
-    res = requests.get(url, params=params, headers=headers)
-
-    print(res, res.text, sep='n')
-    pprint(res.json())
 
 
 # --- Main ---
@@ -142,7 +149,7 @@ def main():
 
     running = True
     while running:
-        command = input('--> ')
+        command = input('\n--> ')
         if command == 'q':
             break
         elif command == '-help':
