@@ -84,14 +84,18 @@ def refresh_token():
 # --- API Endpoints ---
 # NOTE: You have to call load_token() before
 #       calling any function in this section.
-def user_info(access_token):
+def get_user_info(access_token, fields=None):
     endpoint = 'https://api.myanimelist.net/v2/users/@me'
     headers = {'Authorization': f'Bearer {access_token}'}
-    res = requests.get(endpoint, headers=headers, timeout=2)
+    params = {'fields': fields}
+    res = requests.get(endpoint, params=params, headers=headers, timeout=2)
     
-    print(res, res.text, res.json(), sep='\n')
+    print(res)
+    print('Response in text:\n', res.text)
+    print('Response in JSON:')
+    pprint(res.json())
 
-def anime_stats(access_token):
+def anime_stats(access_token, fields=None):
     endpoint = 'https://api.myanimelist.net/v2/users/@me'
     headers = {'Authorization': f'Bearer {access_token}'}
     params = {'fields': 'anime_statistics'}
@@ -142,28 +146,35 @@ def help_msg():
     print(msg)
 
 
-# --- Main ---
+# --- Main Loop ---
 def main():
     username = input('Enter your username: ')
     user_token = "Token not loaded."
 
     running = True
     while running:
-        command = input('\n--> ')
-        if command == 'q':
-            break
-        elif command == '-help':
-            help_msg()
-        elif command == 'auth':
-            main_auth(username)
-        elif command == 'ld tkn':
-            user_token = load_token(username)
-        elif command == 'p tkn':
-            pprint(user_token)
+        user_input = input('\n--> ').strip()
         
-        elif command == 'gt inf':
-            user_info(user_token['access_token'])
-        elif command == 'gt stat':
+        if len(user_input.split(' -')) > 1:
+            cmd, arg = user_input.split(' -')   # Separate command from
+        else:                                   # argument if provided
+            cmd = user_input                    # else set argument to None
+            arg = None
+
+        # Handle commands
+        if cmd == 'q':
+            break
+        elif cmd == '-help':
+            help_msg()
+        elif cmd == 'auth':
+            main_auth(username)
+        elif cmd == 'ld tkn':
+            user_token = load_token(username)
+        elif cmd == 'p tkn':
+            pprint(user_token)
+        elif cmd == 'gt inf':
+            get_user_info(user_token['access_token'], arg)
+        elif cmd == 'gt stat':
             anime_stats(user_token['access_token'])
         else:
             print("Command not recognized!")
