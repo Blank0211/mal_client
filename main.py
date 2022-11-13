@@ -1,4 +1,6 @@
-import sys, json, secrets, pprint
+from secrets import token_urlsafe
+from pprint import pprint
+import json
 import requests
 CLIENT_ID = "d2b59caf73a52c2d8c6a5be3e7bd9733"
 
@@ -9,13 +11,13 @@ def get_code_verifier():
     """Generates a code verifier with the length of 128.
     Google "AOuth 2 simplified" to learn about "code verifier".
     """
-    token = secrets.token_urlsafe(100)
+    token = token_urlsafe(100)
     return token[:128]
 
 # Step 2
 def print_auth_link(code_verifier):
     url = f'https://myanimelist.net/v1/oauth2/authorize?response_type=code&client_id={CLIENT_ID}&code_challenge={code_verifier}'
-    print("Authorize the app by going to the following link: \n", url, '\n')
+    print("Authorize application by going to the following link: \n", url, '\n')
 
 # Step 3
 def get_acc_token(code_verifier, auth_code):
@@ -35,16 +37,14 @@ def get_acc_token(code_verifier, auth_code):
     }
     res = requests.post(url, data=payload, headers={'Content-Type': 'application/x-www-form-urlencoded'})
     res.raise_for_status()
-
     token = res.json()
-    print(token, res.text, type(res.text), res.status_code, sep='\n')
-
+    
     return token
 
 # Step 4
 def save_tokens(username: str, new_data: dict):
-    """Save the tokens to mal_token.json file.
-    If file does not exist, this will create it.
+    """Saves tokens to mal_token.json file.
+    Creates the file if it does'nt exist.
     
     JSONDecodeError is used to deal with empty file.
     """
@@ -77,6 +77,9 @@ def main_auth(username):
     save_tokens(username, tokens)
     print("Authorized.")
 
+def refresh_token():
+    pass
+
 
 # --- Commands ---
 def load_token(username):
@@ -97,7 +100,7 @@ def load_token(username):
         if username in users_data.keys():
             user_tokens = users_data[username]
             return_val = user_tokens
-            print("You are logged in.")
+            print("Token loaded.")
         else:
             print(f"No tokens found for {username}.")
             return_val = 'not_found'
@@ -115,11 +118,27 @@ def help_msg():
     """
     print(msg)
 
+def user_info(access_token):
+    url = 'https://api.myanimelist.net/v2/users/@me'
+    headers = {'Authorization': f'Bearer {access_token}'}
+    res = requests.get(url, headers=headers)
+    
+    print(res, res.text, res.json(), sep='\n')
+
+def anime_stats(access_token):
+    url = 'https://api.myanimelist.net/v2/users/@me'
+    headers = {'Authorization': f'Bearer {access_token}'}
+    params = {'fields': 'anime_statistics'}
+    res = requests.get(url, params=params, headers=headers)
+
+    print(res, res.text, sep='n')
+    pprint(res.json())
+
 
 # --- Main ---
 def main():
-    username = input('Enter your MAL username: ')
-    user_token = 'Token not loaded. Use <ld tok> to load token'
+    username = input('Enter your username: ')
+    user_token = "Token not loaded."
 
     running = True
     while running:
@@ -133,7 +152,12 @@ def main():
         elif command == 'ld tkn':
             user_token = load_token(username)
         elif command == 'p tkn':
-            pprint.pprint(user_token)
+            pprint(user_token)
+        
+        elif command == 'gt inf':
+            user_info(user_token['access_token'])
+        elif command == 'gt stat':
+            anime_stats(user_token['access_token'])
         else:
             print("Command not recognized!")
 
