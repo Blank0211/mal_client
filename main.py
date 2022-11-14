@@ -90,18 +90,19 @@ def get_user_info(access_token, fields=None):
     params = {'fields': fields}
     res = requests.get(endpoint, params=params, headers=headers, timeout=2)
     
-    print(res)
-    print('Response in text:\n', res.text)
-    print('Response in JSON:')
+    print(res, 'Response in text:', res.text, '\nResponse in JSON:', sep='\n')
     pprint(res.json())
 
-def anime_stats(access_token, fields=None):
-    endpoint = 'https://api.myanimelist.net/v2/users/@me'
-    headers = {'Authorization': f'Bearer {access_token}'}
-    params = {'fields': 'anime_statistics'}
-    res = requests.get(endpoint, params=params, headers=headers, timeout=2)
+def update_eps(access_token, anime_id=17549, num_watched_eps=1):
+    endpoint = f'https://api.myanimelist.net/v2/anime/{anime_id}/my_list_status'
+    headers = {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Authorization': f'Bearer {access_token}'
+        }
+    payload = {'num_watched_episodes': int(num_watched_eps)}
+    res = requests.patch(endpoint, data=payload, headers=headers)
 
-    print(res, res.text, sep='n')
+    print(res, 'Response in text:', res.text, '\nResponse in JSON:', sep='\n')
     pprint(res.json())
 
 
@@ -133,15 +134,17 @@ def load_token(username):
 
 def help_msg():
     msg = """
-        Commands        Discription
+        Commands        Discription : Syntax
 
                q        Quit application
             auth        Authorize application
           ld tkn        Load user's token from data file 
            p tkn        Print user's tokens
 
-          gt inf        Get user info
+          gt inf        Get user info : gt inf -[field]
          gt stat        Get user's anime stats
+          up eps        Update episode : up eps -[anime id] -[episode number]
+          
     """
     print(msg)
 
@@ -149,17 +152,12 @@ def help_msg():
 # --- Main Loop ---
 def main():
     username = input('Enter your username: ')
-    user_token = "Token not loaded."
+    user_token = {'access_token': 'Token not loaded.'}
 
     running = True
     while running:
         user_input = input('\n--> ').strip()
-        
-        if len(user_input.split(' -')) > 1:
-            cmd, arg = user_input.split(' -')   # Separate command from
-        else:                                   # argument if provided
-            cmd = user_input                    # else set argument to None
-            arg = None
+        cmd, *args = user_input.split(' -') # Parse input
 
         # Handle commands
         if cmd == 'q':
@@ -173,9 +171,11 @@ def main():
         elif cmd == 'p tkn':
             pprint(user_token)
         elif cmd == 'gt inf':
-            get_user_info(user_token['access_token'], arg)
+            get_user_info(user_token['access_token'], *args)
         elif cmd == 'gt stat':
             anime_stats(user_token['access_token'])
+        elif cmd == 'up eps':
+            update_eps(user_token['access_token'], *args)
         else:
             print("Command not recognized!")
 
