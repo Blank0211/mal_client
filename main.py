@@ -162,7 +162,7 @@ def main():
         # Handle commands
         if cmd == 'q':
             break
-        elif cmd == '-help':
+        elif cmd == 'h':
             help_msg()
         elif cmd == 'auth':
             main_auth(username)
