@@ -2,8 +2,13 @@
 A barebone python CLI application to work with MAL's API.
 
 ### Instructions
-Run the script from command line and enter a username. enter "h" to get the list of 
-commands and their discription
+1. Run the script from command line.  
+2. Enter a username.  
+3. Enter `auth` to authorize application.  
+4. Enter `ld tkn` to load tokens.  
+5. Enter `h` to get a list of available actions.  
+
+You only need to use `auth` the first time running the script.  
 
 By default MAL API doesn't return all fields. You can choose the fields  
 that you want returned with the `fields` parameter. To pass a fields parameter 
