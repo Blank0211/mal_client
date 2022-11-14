@@ -1,7 +1,8 @@
-from secrets import token_urlsafe
-from pprint import pprint
+import sys
 import json
 import requests
+from secrets import token_urlsafe
+from pprint import pprint
 CLIENT_ID = "d2b59caf73a52c2d8c6a5be3e7bd9733"
 
 
@@ -88,25 +89,27 @@ def get_user_info(access_token, fields=None):
     endpoint = 'https://api.myanimelist.net/v2/users/@me'
     headers = {'Authorization': f'Bearer {access_token}'}
     params = {'fields': fields}
+    
     res = requests.get(endpoint, params=params, headers=headers, timeout=2)
     
     print(res, 'Response in text:', res.text, '\nResponse in JSON:', sep='\n')
     pprint(res.json())
 
-def update_eps(access_token, anime_id=17549, num_watched_eps=1):
-    endpoint = f'https://api.myanimelist.net/v2/anime/{anime_id}/my_list_status'
+def update_eps(access_token, anime_id, num_watched_eps):
+    endpoint = f'https://api.myanimelist.net/v2/anime/{int(anime_id)}/my_list_status'
     headers = {
         'Content-Type': 'application/x-www-form-urlencoded',
         'Authorization': f'Bearer {access_token}'
         }
     payload = {'num_watched_episodes': int(num_watched_eps)}
+    
     res = requests.patch(endpoint, data=payload, headers=headers)
 
     print(res, 'Response in text:', res.text, '\nResponse in JSON:', sep='\n')
     pprint(res.json())
 
 
-# --- Local Commands ---
+# --- Complementary Functions ---
 def load_token(username):
     """Returns user's tokens if found.
     Returns "not_found" if user is not registered,
@@ -142,42 +145,46 @@ def help_msg():
            p tkn        Print user's tokens
 
           gt inf        Get user info : gt inf -[field]
-         gt stat        Get user's anime stats
-          up eps        Update episode : up eps -[anime id] -[episode number]
-          
+          up eps        Update episode : up eps -[anime id] -[episode number]   
     """
     print(msg)
+
+def handle_input(user_input):
+    """Call different functions based on user input."""
+    global tokens
+    cmd, *args = user_input.split(' -')
+ 
+    if cmd == 'q':
+        sys.exit(0)
+    elif cmd == 'h':
+        help_msg()
+    elif cmd == 'auth':
+        main_auth(username)
+    elif cmd == 'ld tkn':
+        tokens = load_token(username)
+    elif cmd == 'p tkn':
+        pprint(tokens)
+    elif cmd == 'gt inf':
+        get_user_info(tokens['access_token'], *args)
+    elif cmd == 'up eps':
+        update_eps(tokens['access_token'], *args)
+    else:
+        print("Command not recognized!")
 
 
 # --- Main Loop ---
 def main():
+    global username, tokens
     username = input('Enter your username: ')
-    user_token = {'access_token': 'Token not loaded.'}
+    tokens = {'access_token': 'Token not loaded.'}
 
     running = True
     while running:
         user_input = input('\n--> ').strip()
-        cmd, *args = user_input.split(' -') # Parse input
-
-        # Handle commands
-        if cmd == 'q':
-            break
-        elif cmd == 'h':
-            help_msg()
-        elif cmd == 'auth':
-            main_auth(username)
-        elif cmd == 'ld tkn':
-            user_token = load_token(username)
-        elif cmd == 'p tkn':
-            pprint(user_token)
-        elif cmd == 'gt inf':
-            get_user_info(user_token['access_token'], *args)
-        elif cmd == 'gt stat':
-            anime_stats(user_token['access_token'])
-        elif cmd == 'up eps':
-            update_eps(user_token['access_token'], *args)
-        else:
-            print("Command not recognized!")
+        try:
+            handle_input(user_input)
+        except Exception as err:
+            print('An error occurred:\n', err)
 
 if __name__ == "__main__":
     main()
