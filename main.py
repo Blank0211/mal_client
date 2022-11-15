@@ -79,6 +79,7 @@ def main_auth(username):
     print("Authorized.")
 
 def refresh_token(refresh_token, username):
+    """Refresh tokens and save new tokens to file."""
     url = 'https://myanimelist.net/v1/oauth2/token'
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
     payload = {
