@@ -78,13 +78,36 @@ def main_auth(username):
     save_tokens(username, tokens)
     print("Authorized.")
 
-def refresh_token():
-    pass
+def refresh_token(refresh_token, username):
+    url = 'https://myanimelist.net/v1/oauth2/token'
+    headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+    payload = {
+        'client_id': CLIENT_ID,
+        'grant_type': 'refresh_token',
+        'refresh_token': refresh_token
+    }
+    res = requests.post(url, data=payload, headers=headers)
+    print(res)
+    
+    new_tokens = res.json()
+    save_tokens(username, new_tokens)
+
+    print('Tokens refreshed!')
 
 
 # --- API Endpoints ---
 # NOTE: You have to call load_token() before
-#       calling any function in this section.
+#       calling most functions in this section.
+def get_anime_list(search, limit=5, offset=None):
+    endpoint = 'https://api.myanimelist.net/v2/anime'
+    headers = {'X-MAL-CLIENT-ID': CLIENT_ID}
+    params = {'q': search, 'limit': limit, 'offset': offset}
+
+    res = requests.get(endpoint, params=params, headers=headers)
+
+    print(res, 'Response in text:', res.text, '\nResponse in JSON:', sep='\n')
+    pprint(res.json())
+
 def get_user_info(access_token, fields=None):
     endpoint = 'https://api.myanimelist.net/v2/users/@me'
     headers = {'Authorization': f'Bearer {access_token}'}
@@ -104,6 +127,15 @@ def update_eps(access_token, anime_id, num_watched_eps):
     payload = {'num_watched_episodes': int(num_watched_eps)}
     
     res = requests.patch(endpoint, data=payload, headers=headers)
+
+    print(res, 'Response in text:', res.text, '\nResponse in JSON:', sep='\n')
+    pprint(res.json())
+
+def get_user_anime_list(access_token):
+    endpoint = 'https://api.myanimelist.net/v2/users/@me/animelist'
+    headers = {'Authorization': f'Bearer {access_token}'}
+    
+    res = requests.get(endpoint, headers=headers)
 
     print(res, 'Response in text:', res.text, '\nResponse in JSON:', sep='\n')
     pprint(res.json())
@@ -141,11 +173,14 @@ def help_msg():
 
                q        Quit application
             auth        Authorize application
-          ld tkn        Load user's token from data file 
+          ld tkn        Load user's token from data file
+          rf tkn        Refresh tokens (and save new tokens to file)
            p tkn        Print user's tokens
 
           gt inf        Get user info : gt inf -[field]
-          up eps        Update episode : up eps -[anime id] -[episode number]   
+          up eps        Update episode : up eps -[anime id] -[episode number]
+          gt lst        Get user's anime list
+          gt dtl        Get detail about anime : gt dtl -[search] -[fields]
     """
     print(msg)
 
@@ -162,12 +197,18 @@ def handle_input(user_input):
         main_auth(username)
     elif cmd == 'ld tkn':
         tokens = load_token(username)
+    elif cmd == 'rf tkn':
+        refresh_token(tokens['refresh_token'], username)
     elif cmd == 'p tkn':
         pprint(tokens)
     elif cmd == 'gt inf':
         get_user_info(tokens['access_token'], *args)
     elif cmd == 'up eps':
         update_eps(tokens['access_token'], *args)
+    elif cmd == 'gt lst':
+        get_user_anime_list(tokens['access_token'])
+    elif cmd == 'gt dtl':
+        get_anime_list(*args)
     else:
         print("Command not recognized!")
 

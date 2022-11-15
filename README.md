@@ -1,5 +1,5 @@
 # MyAnimeList Client (Python)
-A barebone python CLI application to work with MAL's API.
+A barebone MyAnimeLIst application written in python.
 
 ### Instructions
 1. Run the script from command line.  
