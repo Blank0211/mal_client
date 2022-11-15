@@ -181,7 +181,7 @@ def help_msg():
           gt inf        Get user info : gt inf -[field]
           up eps        Update episode : up eps -[anime id] -[episode number]
           gt lst        Get user's anime list
-          gt dtl        Get detail about anime : gt dtl -[search] -[fields]
+              sr        Search anime : sr -[search] -[fields]
     """
     print(msg)
 
@@ -208,7 +208,7 @@ def handle_input(user_input):
         update_eps(tokens['access_token'], *args)
     elif cmd == 'gt lst':
         get_user_anime_list(tokens['access_token'])
-    elif cmd == 'gt dtl':
+    elif cmd == 'sr':
         get_anime_list(*args)
     else:
         print("Command not recognized!")
