@@ -30,13 +30,14 @@ def get_acc_token(code_verifier, auth_code):
     that will contain access token and some additional data.
     """
     url = 'https://myanimelist.net/v1/oauth2/token'
+    headers = {'Content-Type': 'application/x-www-form-urlencoded'}
     payload = {
         'client_id': CLIENT_ID,
         'code': auth_code,
         'code_verifier': code_verifier,
         'grant_type': 'authorization_code'
     }
-    res = requests.post(url, data=payload, headers={'Content-Type': 'application/x-www-form-urlencoded'})
+    res = requests.post(url, data=payload, headers=headers, timeout=2)
     res.raise_for_status()
     token = res.json()
     
@@ -87,7 +88,7 @@ def refresh_token(refresh_token, username):
         'grant_type': 'refresh_token',
         'refresh_token': refresh_token
     }
-    res = requests.post(url, data=payload, headers=headers)
+    res = requests.post(url, data=payload, headers=headers, timeout=2)
     print(res)
     
     new_tokens = res.json()
@@ -104,10 +105,8 @@ def get_anime_list(search, limit=5, offset=None):
     headers = {'X-MAL-CLIENT-ID': CLIENT_ID}
     params = {'q': search, 'limit': limit, 'offset': offset}
 
-    res = requests.get(endpoint, params=params, headers=headers)
-
-    print(res, 'Response in text:', res.text, '\nResponse in JSON:', sep='\n')
-    pprint(res.json())
+    res = requests.get(endpoint, params=params, headers=headers, timeout=2)
+    print_response(res)
 
 def get_user_info(access_token, fields=None):
     endpoint = 'https://api.myanimelist.net/v2/users/@me'
@@ -115,9 +114,7 @@ def get_user_info(access_token, fields=None):
     params = {'fields': fields}
     
     res = requests.get(endpoint, params=params, headers=headers, timeout=2)
-    
-    print(res, 'Response in text:', res.text, '\nResponse in JSON:', sep='\n')
-    pprint(res.json())
+    print_response(res)
 
 def update_eps(access_token, anime_id, num_watched_eps):
     endpoint = f'https://api.myanimelist.net/v2/anime/{int(anime_id)}/my_list_status'
@@ -127,19 +124,15 @@ def update_eps(access_token, anime_id, num_watched_eps):
         }
     payload = {'num_watched_episodes': int(num_watched_eps)}
     
-    res = requests.patch(endpoint, data=payload, headers=headers)
-
-    print(res, 'Response in text:', res.text, '\nResponse in JSON:', sep='\n')
-    pprint(res.json())
+    res = requests.patch(endpoint, data=payload, headers=headers, timeout=2)
+    print_response(res)
 
 def get_user_anime_list(access_token):
     endpoint = 'https://api.myanimelist.net/v2/users/@me/animelist'
     headers = {'Authorization': f'Bearer {access_token}'}
     
-    res = requests.get(endpoint, headers=headers)
-
-    print(res, 'Response in text:', res.text, '\nResponse in JSON:', sep='\n')
-    pprint(res.json())
+    res = requests.get(endpoint, headers=headers, timeout=2)
+    print_response(res)
 
 
 # --- Complementary Functions ---
@@ -173,6 +166,7 @@ def help_msg():
         Commands        Discription : Syntax
 
                q        Quit application
+               h        Display this message
             auth        Authorize application
           ld tkn        Load user's token from data file
           rf tkn        Refresh tokens (and save new tokens to file)
@@ -213,20 +207,31 @@ def handle_input(user_input):
     else:
         print("Command not recognized!")
 
+def print_response(res):
+    print(res)
+
+    print("Response in text: ")
+    print(res.text)
+    
+    print("\nResponse in JSON: ")
+    pprint(res.json())
+
 
 # --- Main Loop ---
-def main():
+def main_mal():
     global username, tokens
     username = input('Enter your username: ')
     tokens = {'access_token': 'Token not loaded.'}
+    help_msg()
 
     running = True
     while running:
         user_input = input('\n--> ').strip()
+        
         try:
             handle_input(user_input)
         except Exception as err:
             print('An error occurred:\n', err)
 
 if __name__ == "__main__":
-    main()
+    main_mal()
