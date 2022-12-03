@@ -6,7 +6,7 @@ A barebone MyAnimeLIst & Anilist clients written in python.
 2. Enter a username.  
 3. Enter `auth` to authorize application.  
 4. Enter `ld tkn` to load tokens.  
-5. Enter `h` to get a list of available actions.  
+5. Enter `h` for help message.  
 
 You only need to use `auth` the first time running the script.  
 
