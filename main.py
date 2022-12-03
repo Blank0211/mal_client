@@ -135,7 +135,7 @@ def get_user_anime_list(access_token):
     print_response(res)
 
 
-# --- Complementary Functions ---
+# --- Utils ---
 def load_token(username):
     """Returns user's tokens if found.
     Returns "not_found" if user is not registered,
