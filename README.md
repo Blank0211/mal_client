@@ -1,5 +1,5 @@
-# MyAnimeList Client (Python)
-A barebone MyAnimeLIst & Anilist client written in python.
+# MyAnimeList & Anilist Clients
+A barebone MyAnimeLIst & Anilist clients written in python.
 
 ### Instructions
 1. Run the script from command line.  
