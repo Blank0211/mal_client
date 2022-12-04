@@ -44,7 +44,7 @@ def get_acc_token(code_verifier, auth_code):
     return token
 
 # Step 4
-def save_tokens(username: str, new_data: dict):
+def save_tokens(username, tokens):
     """Saves tokens to mal_token.json file.
     Creates the file if it does'nt exist.
     
@@ -54,14 +54,14 @@ def save_tokens(username: str, new_data: dict):
         with open('mal_tokens.json', 'r+') as f:
             users_data = json.load(f)
             users_data[username] = dict()
-            users_data[username].update(new_data)
+            users_data[username].update(tokens)
             f.seek(0)
             json.dump(users_data, f, indent=4)
     except (FileNotFoundError, json.decoder.JSONDecodeError):
         with open('mal_tokens.json', 'w') as f:
             users_data = dict()
             users_data[username] = dict()
-            users_data[username].update(new_data)
+            users_data[username].update(tokens)
             json.dump(users_data, f, indent=4)
 
 # Step 1-4
@@ -104,6 +104,14 @@ def get_anime_list(search, limit=5, offset=None):
     endpoint = 'https://api.myanimelist.net/v2/anime'
     headers = {'X-MAL-CLIENT-ID': CLIENT_ID}
     params = {'q': search, 'limit': limit, 'offset': offset}
+
+    res = requests.get(endpoint, params=params, headers=headers, timeout=2)
+    print_response(res)
+
+def get_anime_details(access_token, anime_id=1, fields=None):
+    endpoint = f'https://api.myanimelist.net/v2/anime/{anime_id}'
+    headers = {'Authorization': f'Bearer {access_token}'}
+    params = {'fields': fields}
 
     res = requests.get(endpoint, params=params, headers=headers, timeout=2)
     print_response(res)
@@ -172,9 +180,10 @@ def help_msg():
           rf tkn        Refresh tokens (and save new tokens to file)
            p tkn        Print user's tokens
 
-          gt inf        Get user info : gt inf -[field]
+          gt inf        Get user info : gt inf -[fields]
           up eps        Update episode : up eps -[anime id] -[episode number]
           gt lst        Get user's anime list
+          gt dtl        Get detail about anime : gt dtl -[anime id] -[fields]
               sr        Search anime : sr -[search] -[fields]
     """
     print(msg)
@@ -204,6 +213,8 @@ def handle_input(user_input):
         get_user_anime_list(tokens['access_token'])
     elif cmd == 'sr':
         get_anime_list(*args)
+    elif cmd == 'gt dtl':
+        get_anime_details(tokens['access_token'], *args)
     else:
         print("Command not recognized!")
 
