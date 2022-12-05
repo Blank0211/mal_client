@@ -135,6 +135,25 @@ def update_eps(access_token, anime_id, num_watched_eps):
     res = requests.patch(endpoint, data=payload, headers=headers, timeout=2)
     print_response(res)
 
+def inc_ep(access_token, anime_id, num=1):
+    """Increments episode number by num argument."""
+    # Step 1: Get number of watched episodes
+    endpoint = f'https://api.myanimelist.net/v2/anime/{anime_id}'
+    headers = {'Authorization': f'Bearer {access_token}'}
+    params = {'fields': 'my_list_status'}
+    
+    res = requests.get(endpoint, params=params, headers=headers, timeout=2)
+    watched_eps = res.json()['my_list_status']['num_episodes_watched']
+    
+    # Step 2: Update number of watched episodes
+    endpoint = f'https://api.myanimelist.net/v2/anime/{anime_id}/my_list_status'
+    headers = {'Authorization': f'Bearer {access_token}',
+               'Content-Type': 'application/x-www-form-urlencoded'}
+    payload = {'num_watched_episodes': watched_eps + num}
+
+    res = requests.patch(endpoint, data=payload, headers=headers, timeout=2)
+    print_response(res)
+
 def get_user_anime_list(access_token):
     endpoint = 'https://api.myanimelist.net/v2/users/@me/animelist'
     headers = {'Authorization': f'Bearer {access_token}'}
@@ -182,6 +201,7 @@ def help_msg():
 
           gt inf        Get user info : gt inf -[fields]
           up eps        Update episode : up eps -[anime id] -[episode number]
+          inc ep        Increment episode by one (default) : inc up -[anime_id] -[inc_num]
           gt lst        Get user's anime list
           gt dtl        Get detail about anime : gt dtl -[anime id] -[fields]
               sr        Search anime : sr -[search] -[fields]
@@ -209,6 +229,8 @@ def handle_input(user_input):
         get_user_info(tokens['access_token'], *args)
     elif cmd == 'up eps':
         update_eps(tokens['access_token'], *args)
+    elif cmd == 'inc ep':
+        inc_ep(tokens['access_token'], *args)
     elif cmd == 'gt lst':
         get_user_anime_list(tokens['access_token'])
     elif cmd == 'sr':
