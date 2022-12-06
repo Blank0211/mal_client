@@ -2,7 +2,7 @@ import sys
 import json
 import requests
 from secrets import token_urlsafe
-from pprint import pprint
+from rich.pretty import pprint
 CLIENT_ID = "d2b59caf73a52c2d8c6a5be3e7bd9733"
 
 
@@ -243,8 +243,8 @@ def handle_input(user_input):
 def print_response(res):
     print(res)
 
-    print("Response in text: ")
-    print(res.text)
+    # print("Response in text: ")
+    # print(res.text)
     
     print("\nResponse in JSON: ")
     pprint(res.json())
@@ -267,4 +267,4 @@ def main_mal():
             print('An error occurred:\n', err)
 
 if __name__ == "__main__":
-    main_mal()
+    print(help(pprint))
